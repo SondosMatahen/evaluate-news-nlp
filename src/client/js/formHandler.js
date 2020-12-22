@@ -1,4 +1,4 @@
-function handleSubmit(event) {
+async function handleSubmit(event) {
     event.preventDefault()
     // check what text was put into the form field
     let formText = document.getElementById('name').value
@@ -7,35 +7,28 @@ function handleSubmit(event) {
         console.log("::: Form Submitted :::", formText)
 
         // let result = document.getElementById('result');
-
         // result.textContent = "loading..";
 
-        fetch('http://localhost:8082/getapi', {
+        let resultdata = await fetch('http://localhost:8082/getapi', {
             method: "POST",
             credentials: "same-origin",
             headers: {
                 "Content-Type": "application/json"
             },
             body: JSON.stringify({ 'key': formText })
-
         })
-            .then(res => {
-                console.log("handleSubmittttt" + res)
-                console.log("handleSubmittttt" + res.json())
-
-                res.json()})
-            .then(function(res){
-                console.log("handleSubmit" + JSON.stringify(res))
-            
-                var text = `
-                    Model: ${res.model}  
-                    Score: ${res.score_tag}  
-                    Irony: ${res.irony} 
-                    Confidence: ${checkConfidence(res.confidence)}
-                `;
+        let evaluation = await resultdata.json();
+        console.log('ccccccccccccc',evaluation)
+      
+      
+        // document.getElementById('results').innerHTML = evaluation;
+        document.getElementById('agreement').innerHTML = `Agreement or disagreement: ${evaluation.agreement}`;
+        document.getElementById('subjectivity').innerHTML = `Objective or subjective: ${evaluation.subjectivity}`;
+        document.getElementById('confidence').innerHTML = `Evaluation confidence level (100 is max): ${evaluation.confidence}`;
+        document.getElementById('irony').innerHTML = `Is it an ironic evaluation: ${evaluation.irony}`;
+        document.getElementById('sentiment').innerHTML = `Sentiment: ${switchSentiment(evaluation.score_tag)}`;
     
-                result.innerText = text;
-            })
+
     } else {
         console.log('not valid url')
         document.getElementById('results').innerHTML = "error: not a valid url";
@@ -44,10 +37,10 @@ function handleSubmit(event) {
 
 }
 
-function checkConfidence(confidenceLevel){
-    if(confidenceLevel>50){
+function checkConfidence(confidenceLevel) {
+    if (confidenceLevel > 50) {
         return "confident";
-    }else{
+    } else {
         return "not confident"
     }
 }

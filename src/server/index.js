@@ -12,7 +12,7 @@ const bodyParser = require('body-parser');
 const cors = require('cors');
 // fetch is not defined in NodeJS; installed via npm 
 const fetch = require('node-fetch');
-
+const axios =require('axios')
 app.use((cors()));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -36,7 +36,7 @@ app.get('/test', function (req, res) {
     res.send(mockAPIResponse)
 })
 
-sentimentData={}
+let sentimentData={}
 //Route server
 app.post('/getapi', ToGetAPI)
 
@@ -45,21 +45,26 @@ console.log(`Your API key is ${apiKey}`);
 
 async function ToGetAPI (req, res) {
     console.log('req', req.body);
-
     const urltext = req.body.key;
-    // console.log('reqqq',urltext);
-
     // const URL = `https://api.meaningcloud.com/sentiment-2.1?key=${apiKey}&of=json&txt=${urltext}&model=general&lang=en`;
     const URL = `https://api.meaningcloud.com/sentiment-2.1?key=${apiKey}&url=${urltext}&model=general&of=json&lang=en`;
-    // console.log('url',URL);
+   
 
-    const result = await fetch(URL);
-    console.log('edata', result);
+    let result = await fetch(URL);
+    // console.log('edata', result);
 
     // try {
         let apiResponse = await result.json();
-        console.log("apiResponse " + apiResponse);
-        res.send(apiResponse);;
+        // console.log("apiResponse " , apiResponse);
+        sentiment = {
+            score_tag : apiResponse.score_tag,
+            agreement : apiResponse.agreement,
+            subjectivity : apiResponse.subjectivity,
+            confidence : apiResponse.confidence,
+            irony : apiResponse.irony
+        }
+    console.log('sentiment', sentiment);
+        res.send(sentiment);;
     // } catch (e) {
     //     console.log('error equal to', e);
     // }
