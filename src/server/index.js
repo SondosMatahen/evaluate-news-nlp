@@ -10,10 +10,8 @@ const mockAPIResponse = require('./mockAPI.js')
 const app = express()
 const bodyParser = require('body-parser');
 const cors = require('cors');
-
 // fetch is not defined in NodeJS; installed via npm 
 const fetch = require('node-fetch');
-const { response } = require('express');
 
 app.use((cors()));
 app.use(bodyParser.json());
@@ -23,7 +21,9 @@ app.use(express.static('dist'))
 console.log(__dirname)
 
 app.get('/', function (req, res) {
-    res.sendFile('dist/index.html')
+    // res.sendFile('dist/index.html')
+    res.sendFile(path.resolve('dist/index.html'))
+
     // res.sendFile(path.resolve('src/client/views/index.html'))
 })
 
@@ -36,30 +36,33 @@ app.get('/test', function (req, res) {
     res.send(mockAPIResponse)
 })
 
-
+sentimentData={}
 //Route server
-// app.post('/getapi', ToGetAPI)
+app.post('/getapi', ToGetAPI)
 
-// const Url = "https://api.meaningcloud.com/sentiment-2.1";
-// const apiKey = "?key=" + process.env.API_KEY;
-// const textHolder = "&lang=en&of=json&txt=" //"&lang=auto" + "&ilang=en" + "&txt=";
-// let userInput = []
+const apiKey = process.env.API_KEY;
+console.log(`Your API key is ${apiKey}`);
 
-async function ToGetAPI(req, res) {
-    console.log('reqqq', req);
+async function ToGetAPI (req, res) {
+    console.log('req', req.body);
 
-    const apiKey = process.env.API_KEY;
-    const urltext = req.body.formText;
-    const URL = `https://api.meaningcloud.com/sentiment-2.1?key=${apiKey}&of=json&txt=${urltext}&model=general&lang=en`;
+    const urltext = req.body.key;
+    // console.log('reqqq',urltext);
+
+    // const URL = `https://api.meaningcloud.com/sentiment-2.1?key=${apiKey}&of=json&txt=${urltext}&model=general&lang=en`;
+    const URL = `https://api.meaningcloud.com/sentiment-2.1?key=${apiKey}&url=${urltext}&model=general&of=json&lang=en`;
+    // console.log('url',URL);
+
     const result = await fetch(URL);
     console.log('edata', result);
 
-    try {
-        const data = await result.json();
-        res.send(data);
-    } catch (e) {
-        console.log('error equal to', e);
-    }
+    // try {
+        let apiResponse = await result.json();
+        console.log("apiResponse " + apiResponse);
+        res.send(apiResponse);;
+    // } catch (e) {
+    //     console.log('error equal to', e);
+    // }
 }
 
 
